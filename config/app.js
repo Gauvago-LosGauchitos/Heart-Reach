@@ -6,6 +6,7 @@ import morgan from 'morgan'
 import helmet from 'helmet'
 import cors from 'cors'
 import { config } from "dotenv"
+import orgRoutes from "../src/organization/organization.routes.js"
  
 //Inicializacion
  
@@ -20,7 +21,7 @@ const app = express()
     app.use(cors())
  
     //Declaracion de rutas
-
+    app.use('/org', orgRoutes)
  
     export const initServer = ()=>{
         app.listen(port)

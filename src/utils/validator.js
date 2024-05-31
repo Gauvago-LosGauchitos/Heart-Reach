@@ -59,7 +59,7 @@ export const isAdmin = async (req, res, next) => {
 export const isAsociation = async (req, res, next) => {
     try {
         let { user } = req;//req que ya tenemos
-        if (!user || user.role !== 'ASOCIATION') return res.status(403).send({ message: `You dont have access. | username: ${user.username}` });
+        if (!user || user.role !== 'ADMIN-ASOCIATION') return res.status(403).send({ message: `You dont have access. | username: ${user.username}` });
         next();
     } catch (err) {
         console.error(err);
