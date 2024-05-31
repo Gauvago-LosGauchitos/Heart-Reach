@@ -50,7 +50,7 @@ const userSchema = Schema({
     role: {
         type: String,
         uppercase: true,
-        enum: ['ADMIN', 'ADMIN', 'ASOCIATION', 'USER'],
+        enum: ['ADMIN', 'ADMIN-ASOCIATION', 'USER'],
         required: [true, 'Role is required.']
     }
 })
