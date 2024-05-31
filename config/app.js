@@ -6,6 +6,7 @@ import morgan from 'morgan'
 import helmet from 'helmet'
 import cors from 'cors'
 import { config } from "dotenv"
+import userRoutes from '../src/User/user.routes.js'
  
 //Inicializacion
  
@@ -20,7 +21,7 @@ const app = express()
     app.use(cors())
  
     //Declaracion de rutas
-
+    app.use('/user', userRoutes);
  
     export const initServer = ()=>{
         app.listen(port)

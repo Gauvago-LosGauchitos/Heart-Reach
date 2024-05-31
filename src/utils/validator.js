@@ -12,7 +12,7 @@ export const encrypt = (value) => {
 }
 
 //Validar encriptaciones
-/*
+
 export const checkEncrypt = async (value, valueEncrypt) => {
     try {
         return await compare(value, valueEncrypt);
@@ -21,7 +21,7 @@ export const checkEncrypt = async (value, valueEncrypt) => {
         return err;
     }
 }
-*/
+
 //validar actualizacion
 export const checkUpdate = (data, role) => {
     
