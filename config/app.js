@@ -7,6 +7,7 @@ import helmet from 'helmet'
 import cors from 'cors'
 import { config } from "dotenv"
 import orgRoutes from "../src/organization/organization.routes.js"
+import userRoutes from '../src/User/user.routes.js'
  
 //Inicializacion
  
@@ -22,6 +23,7 @@ const app = express()
  
     //Declaracion de rutas
     app.use('/org', orgRoutes)
+    app.use('/user', userRoutes);
  
     export const initServer = ()=>{
         app.listen(port)
