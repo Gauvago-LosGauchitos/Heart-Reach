@@ -31,6 +31,11 @@ const organizationSchema = Schema({
         enum: ['ACEPTADO', 'EN ESPERA', 'DENEGADO'],
         default: 'EN ESPERA',
         required: [true, 'Role is required.']
+    },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+        required: [true, 'Owner is required.']
     }
 })
 
