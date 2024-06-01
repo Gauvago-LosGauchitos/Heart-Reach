@@ -7,6 +7,8 @@ import helmet from 'helmet'
 import cors from 'cors'
 import { config } from "dotenv"
 import volunteeringRoutes from '../src/volunteering/volunteering.routes.js'
+import orgRoutes from "../src/organization/organization.routes.js"
+import userRoutes from '../src/User/user.routes.js'
  
 //Inicializacion
  
@@ -21,7 +23,9 @@ const app = express()
     app.use(cors())
  
     //Declaracion de rutas
-    app.use('/volunteering', volunteeringRoutes)
+    app.use('/volu', volunteeringRoutes)
+    app.use('/org', orgRoutes)
+    app.use('/user', userRoutes);
  
     export const initServer = ()=>{
         app.listen(port)

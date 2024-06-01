@@ -12,7 +12,7 @@ export const encrypt = (value) => {
 }
 
 //Validar encriptaciones
-/*
+
 export const checkEncrypt = async (value, valueEncrypt) => {
     try {
         return await compare(value, valueEncrypt);
@@ -21,7 +21,7 @@ export const checkEncrypt = async (value, valueEncrypt) => {
         return err;
     }
 }
-*/
+
 //validar actualizacion
 export const checkUpdate = (data, role) => {
     
@@ -59,7 +59,7 @@ export const isAdmin = async (req, res, next) => {
 export const isAsociation = async (req, res, next) => {
     try {
         let { user } = req;//req que ya tenemos
-        if (!user || user.role !== 'ASOCIATION') return res.status(403).send({ message: `You dont have access. | username: ${user.username}` });
+        if (!user || user.role !== 'ADMIN-ASOCIATION') return res.status(403).send({ message: `You dont have access. | username: ${user.username}` });
         next();
     } catch (err) {
         console.error(err);

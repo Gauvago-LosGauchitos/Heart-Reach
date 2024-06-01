@@ -1,4 +1,4 @@
-import Volunteering from "./volunteering.model"
+import Volunteering from "./volunteering.model.js"
 
 //testeo
 export const test = (req, res)=>{
