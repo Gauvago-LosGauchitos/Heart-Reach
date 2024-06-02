@@ -46,13 +46,14 @@ export const orgRequest = async (req, res) => {
 export const orgConfirm = async (req, res) => {
     try {
         let data = req.body
-        let org = await Organization.findOne({ nameHotel: data.nameHotel})
+        let org = await Organization.findOne({ name: data.name })
         let orgRequest = await Organization.findOneAndUpdate(
             {
-                nameHotel: data.nameHotel
-            }, {
-            role: "ACEPTADO"
-        }
+                name: data.name
+            },
+            {
+                role: "ACEPTADO"
+            }
         );
         let newOrgAdmin = await User.findById(org.owner)
         console.log(newOrgAdmin.role)
@@ -61,13 +62,74 @@ export const orgConfirm = async (req, res) => {
         }
         else if (newOrgAdmin.role === 'ADMIN-ASOCIATION') {
             return res.status(401).send({ message: 'This User have an organization' })
-        }else {
-            await User.findByIdAndUpdate({
-                _id: orgRequest.owner
-            }, {
-                role: "ADMIN-ASOCIATION"
-            })
-            return res.send({message: 'Organization correctly added'})
+        } else {
+            await User.findByIdAndUpdate(
+                {
+                    _id: orgRequest.owner
+                },
+                {
+                    role: "ADMIN-ASOCIATION"
+                }
+            )
+            return res.send({ message: 'Organization correctly added' })
+        }
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send({ message: 'Error acepting the organization' })
+    }
+}
+
+export const orgReject = async (req, res) => {
+    try {
+        let data = req.body
+        let org = await Organization.findOne({ name: data.name })
+        let user = await User.findById(org.owner)
+        if (user.role != 'ADMIN-ASOCIATION') {
+            await Organization.findOneAndUpdate(
+                {
+                    name: data.name
+
+                },
+                {
+                    role: "DENEGADO"
+                }
+            );
+            return res.send({ message: 'Organization correctly denied' })
+        }
+        else {
+            return res.status(401).send({ message: 'This organization has already been accepted if you need reject this delete whit `localhost:2690/org/delete`'})
+        }
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send({ message: 'Error acepting the organization' })
+    }
+}
+
+export const orgRemove = async (req, res) => {
+    try {
+        let data = req.body
+        let org = await Organization.findOne({ name: data.name })
+        await Organization.findOneAndUpdate(
+            {
+                name: data.name
+
+            },
+            {
+                role: "DENEGADO"
+            }
+        );
+        let newOrgAdmin = await User.findById(org.owner)
+        console.log(newOrgAdmin.role)
+        if (newOrgAdmin.role === 'ADMIN-ASOCIATION') {
+            await User.findByIdAndUpdate(
+                {
+                    _id: org.owner
+                },
+                {
+                    role: "USER"
+                }
+            )
+            return res.send({ message: 'Organization correctly removed' })
         }
     } catch (err) {
         console.log(err)
