@@ -1,6 +1,6 @@
 'use strict'
 
-import { hash/*, compare*/ } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 //encriptar cualquier cosa
 export const encrypt = (value) => {
     try {
@@ -75,6 +75,23 @@ export const isUser = async (req, res, next) => {
     } catch (err) {
         console.error(err);
         return res.status(403).send({ message: `Unauthorization role` })
+    }
+}
+
+  //Update Volunteering
+  export const checkUpdateV = (data, volunteeringId) => {
+    if (volunteeringId) {
+        if (Object.keys(data).length === 0) {
+            return false;
+        }
+        for (const key in data) {
+            if (data[key] === '') {
+                return false;
+            }
+        }
+        return true;
+    } else {
+        return false;
     }
 }
 

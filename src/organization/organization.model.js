@@ -5,7 +5,8 @@ import { Schema, model } from "mongoose"
 const organizationSchema = Schema({
     name: {
         type: String,
-        required: [true, 'Name is required.']
+        required: [true, 'Name is required.'],
+        unique: [true, 'This organization already exists']
     },
     description: {
         type: String,
