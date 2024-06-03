@@ -6,6 +6,7 @@ import morgan from 'morgan'
 import helmet from 'helmet'
 import cors from 'cors'
 import { config } from "dotenv"
+import volunteeringRoutes from '../src/volunteering/volunteering.routes.js'
 import orgRoutes from "../src/organization/organization.routes.js"
 import userRoutes from '../src/User/user.routes.js'
  
@@ -22,6 +23,7 @@ const app = express()
     app.use(cors())
  
     //Declaracion de rutas
+    app.use('/volu', volunteeringRoutes)
     app.use('/org', orgRoutes)
     app.use('/user', userRoutes);
  

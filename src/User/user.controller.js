@@ -16,12 +16,7 @@ export const test = (req, res) => {
 export const register = async (req, res) => {
     try {
         let data = req.body;
-        //capturar las imagenes
-        const images = req.files.map(file => file.path);
-        console.log(images)
-
-        //guardamos la ruta y el nombre de la imagen
-        data.imageProfile = images;
+       
         //encriptar la contrasenia y el telefono
         data.password = await encrypt(data.password);
 

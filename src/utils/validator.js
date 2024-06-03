@@ -78,3 +78,20 @@ export const isUser = async (req, res, next) => {
     }
 }
 
+  //Update Volunteering
+  export const checkUpdateV = (data, volunteeringId) => {
+    if (volunteeringId) {
+        if (Object.keys(data).length === 0) {
+            return false;
+        }
+        for (const key in data) {
+            if (data[key] === '') {
+                return false;
+            }
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+

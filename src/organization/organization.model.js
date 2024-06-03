@@ -5,7 +5,8 @@ import { Schema, model } from "mongoose"
 const organizationSchema = Schema({
     name: {
         type: String,
-        required: [true, 'Name is required.']
+        required: [true, 'Name is required.'],
+        unique: [true, 'This organization already exists']
     },
     description: {
         type: String,
@@ -31,6 +32,11 @@ const organizationSchema = Schema({
         enum: ['ACEPTADO', 'EN ESPERA', 'DENEGADO'],
         default: 'EN ESPERA',
         required: [true, 'Role is required.']
+    },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: 'user',
+        required: [true, 'Owner is required.']
     }
 })
 
