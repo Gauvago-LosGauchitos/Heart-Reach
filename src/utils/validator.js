@@ -1,6 +1,6 @@
 'use strict'
 
-import { hash/*, compare*/ } from 'bcrypt';
+import { hash, compare } from 'bcrypt';
 //encriptar cualquier cosa
 export const encrypt = (value) => {
     try {
