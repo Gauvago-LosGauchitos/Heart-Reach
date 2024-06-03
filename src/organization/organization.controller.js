@@ -97,7 +97,7 @@ export const orgReject = async (req, res) => {
             return res.send({ message: 'Organization correctly denied' })
         }
         else {
-            return res.status(401).send({ message: 'This organization has already been accepted if you need reject this delete whit `localhost:2690/org/delete`'})
+            return res.status(401).send({ message: 'This organization has already been accepted if you need reject this delete whit `localhost:2690/org/delete`' })
         }
     } catch (err) {
         console.log(err)
@@ -134,5 +134,55 @@ export const orgRemove = async (req, res) => {
     } catch (err) {
         console.log(err)
         return res.status(500).send({ message: 'Error acepting the organization' })
+    }
+}
+
+export const orgUpdate = async (req, res) => {
+    try {
+        let data = req.body
+        let organization = await Organization.findById(req.params.id)
+
+        if (!organization) {
+            return res.status(404).send({ message: 'Organization not found' });
+        }
+
+        organization.name = data.name || organization.name
+        organization.address = data.address || organization.address
+        organization.phone = data.phone || organization.phone
+        organization.email = data.email || organization.email
+        organization.description = data.description || organization.description
+        organization.images = data.images || organization.images
+
+        await organization.save()
+
+        return res.send({ message: 'Organization updated successfully', organization })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send({ message: 'Error updating the organization', err: err })
+    }
+}
+
+export const searchOrg = async (req, res) => {
+    try {
+        let { name } = req.body;
+        let organizations = await Organization.findOne(
+            { name: { $regex: name, $options: 'i' } }
+        );
+
+        return res.send({ organizations });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ message: 'Error searching Organization' });
+    }
+}
+
+export const allOrg = async (req, res) => {
+    try {
+        let organizations = await Organization.findOne();
+
+        return res.send({ organizations });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ message: 'Error finding Organization' });
     }
 }
