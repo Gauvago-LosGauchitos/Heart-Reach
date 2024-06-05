@@ -178,7 +178,7 @@ export const searchOrg = async (req, res) => {
 
 export const allOrg = async (req, res) => {
     try {
-        let organizations = await Organization.findOne();
+        let organizations = await Organization.find();
 
         return res.send({ organizations });
     } catch (err) {
