@@ -1,7 +1,8 @@
 import { Router } from "express"
 import multer from 'multer'
+import { isAdmin } from '../utils/validator.js'
 import { validateJwt } from '../middlewares/validate-jwt.js'
-import { test, register, login, updateProfile  } from './user.controller.js'
+import { test, register, login, updateProfile, getUser, get  } from './user.controller.js'
 
 const api = Router();
 
@@ -20,5 +21,7 @@ api.get('/test', test); // Ruta de prueba
 api.post('/register', upload.array('images', 10), register); // Ruta de registro con subida de imágenes
 api.post('/login', login); // Ruta de inicio de sesión
 api.put('/updateProfile/:userId', upload.array('images', 1),[validateJwt], updateProfile); // Ruta para actualizar perfil con subida de imagen
+api.get('/getUser', [validateJwt], getUser);
+api.get('/get', [validateJwt, isAdmin], get);
 
 export default api

@@ -98,3 +98,53 @@ export const updateProfile = async (req, res) => {
         return res.status(500).send({ message: 'Error al modificar el perfil de otro usuario' });
     }
 };
+
+export const getUser = async (req, res) => {
+    try {
+        // Obtener la clave secreta para el token
+        const secretKey = process.env.SECRET_KEY;
+        
+        // Obtener el token de los encabezados
+        const { authorization } = req.headers;
+        // Verificar el token
+        const { uid } = jwt.verify(authorization, secretKey);
+        
+        // Buscar el usuario por ID
+        const user = await User.findById( uid);
+
+        // Comprobar si el usuario existe
+        if (!user) {
+            return res.status(404).send({ message: 'Usuario no encontrado.' });
+        }
+
+        // Construir la URL de la imagen de perfil del usuario (si la hay)
+        const profileImageUrl = user.imageProfile && user.imageProfile.length > 0 ? `${req.protocol}://${req.get('host')}/${user.imageProfile[0]}` : null;
+
+        // Enviar la respuesta con el usuario y la URL de su imagen de perfil
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            surname: user.surname,
+            username: user.username,
+            email: user.email,
+            phone: user.phone,
+            imageProfile: profileImageUrl,
+            role: user.role,
+            dpi: user.dpi,
+            habilities: user.habilities
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ message: 'Error al obtener el usuario', err });
+    }
+};
+
+export const get = async (req, res) => {
+    try {
+        let users = await User.find({ role: 'USER' });
+        return res.send({ users })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send({ message: `Error to get user`, err })
+    }
+}
