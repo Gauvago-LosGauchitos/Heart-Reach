@@ -23,6 +23,17 @@ export const registerV = async (req, res) => {
     }
 }
 
+export const addType = async (req, res) => {
+    try {
+        let {added} = req.body;
+    
+
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send({ message: 'Error updating the Volunteering', err: err })
+    }
+}
+
 //Eliminar
 export const deleteV = async(req, res)=>{
     try {

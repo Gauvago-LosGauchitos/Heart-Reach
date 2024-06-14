@@ -18,6 +18,8 @@ const volunteeringSchema = new mongoose.Schema({
 
     TypeOfVolunteering: {
         type: String,
+        upercase: true,
+        enum: ['DEFAULT'],
         required: [true, 'Type of volunteering required']
     },
 
