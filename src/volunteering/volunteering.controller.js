@@ -1,5 +1,6 @@
 import Volunteering from "./volunteering.model.js"
 import { checkUpdateV } from "../utils/validator.js"
+import mongoose from 'mongoose';
 
 //testeo
 export const test = (req, res)=>{
@@ -26,7 +27,25 @@ export const registerV = async (req, res) => {
 export const addType = async (req, res) => {
     try {
         let {added} = req.body;
-    
+        
+        if (!added) {
+            return res.status(400).json({ message: 'A parameter is required' });
+        }
+
+        const volunteeringSchema = Volunteering.schema;
+
+        if (!volunteeringSchema.path('TypeOfVolunteering').enumValues.includes(added.toUpperCase())) {
+            volunteeringSchema.path('TypeOfVolunteering').enumValues.push(added.toUpperCase());
+      
+            // Necesitamos recompilar el modelo para que el cambio surta efecto
+            mongoose.models = {};
+            mongoose.model('volunteering', volunteeringSchema);
+      
+            // Ahora puedes usar el modelo actualizado
+            res.status(200).json({ message: `Tipo de voluntariado ${added} agregado al enum` });
+          } else {
+            res.status(400).json({ message: 'El tipo de voluntariado ya existe en el enum' });
+          }
 
     } catch (err) {
         console.error(err)
