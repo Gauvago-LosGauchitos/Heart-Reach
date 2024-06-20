@@ -16,6 +16,8 @@ export const registerV = async (req, res) => {
         if (existingVolunteering) {
             return res.status(400).send({ message: 'Volunteering already exists' });
         }
+        const allvolunters = await Volunteering.find({organization: data.organization})
+        console.log(allvolunters)
         let volunteering = new Volunteering(data);
         await volunteering.save()
         return res.send({ message: '¡The Volunteering has been successfully registered!' });
