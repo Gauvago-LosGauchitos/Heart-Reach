@@ -12,14 +12,18 @@ export const test = (req, res)=>{
 export const registerV = async (req, res) => {
     try {
         let data = req.body;
-        const existingVolunteering = await Volunteering.findOne({ nameVolunteering: data.nameVolunteering });
-        if (existingVolunteering) {
-            return res.status(400).send({ message: 'Volunteering already exists' });
-        }
+        const existingVolunteering = await Volunteering.findOne({ title: data.title });
+        if (existingVolunteering) return res.status(400).send({ message: 'Volunteering already exists' });        
         const allvolunters = await Volunteering.find({organization: data.organization})
-        console.log(allvolunters)
+        const date = new Date(data.date)
+        const ahora = new Date(Date.now())
+        ahora.setDate(ahora.getDate() + 7);
+        const volLength = parseInt(allvolunters.length)
+        console.log(volLength > 2)
+        if (volLength > 2) return res.status(400).send({ message: 'This organization have 3 volunterings' });
+        if (date <= ahora) return res.status(400).send({ message: 'this date is to soon or it`s already happened' });
         let volunteering = new Volunteering(data);
-        await volunteering.save()
+        volunteering.save()
         return res.send({ message: '¡The Volunteering has been successfully registered!' });
     } catch (err) {
         return res.status(500).send({ message: 'Error registering the Volunteering', err: err });
