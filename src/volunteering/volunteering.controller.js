@@ -1,6 +1,7 @@
 import Volunteering from "./volunteering.model.js"
 import { checkUpdateV } from "../utils/validator.js"
 import mongoose from 'mongoose';
+import { Message } from "../chat/message.model.js";
 
 //testeo
 export const test = (req, res)=>{
@@ -105,5 +106,17 @@ export const UpdateV = async (req, res) => {
         console.error(error);
         return res.status(500).send({message: 'Error al actualizar Volunteering', error: error.message})
     }     
+}
+
+//Obtener mensajes antiguos
+export const messages = async (req, res) => {  
+    try {
+        const { chatRoom } = req.params
+        const messages = await Message.find({ chatRoom }).sort({ timestamp: 1 })
+        return res.send(messages)
+    }   catch (err) {
+        console.error(err)
+        res.status(500).json({ message: 'Error al obtener los mensajes' })
+    } 
 }
 

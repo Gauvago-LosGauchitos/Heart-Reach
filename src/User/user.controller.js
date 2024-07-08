@@ -1,11 +1,12 @@
 'use strict'
-//import jwt from 'jsonwebtoken';
 import User from './user.model.js';
 import { checkEncrypt, checkUpdate, encrypt } from '../utils/validator.js';
 import { generateJwt } from '../utils/jwt.js';
 import fs from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken';
+import { PrivateMessage } from '../chat/privateMessage.model.js';
+import { UserMessage } from '../chat/userMessage.model.js'
 
 
 export const test = (req, res) => {
@@ -16,7 +17,7 @@ export const test = (req, res) => {
 export const register = async (req, res) => {
     try {
         let data = req.body;
-       
+
         //encriptar la contrasenia y el telefono
         data.password = await encrypt(data.password);
 
@@ -63,7 +64,7 @@ export const login = async (req, res) => {
         console.error(err);
         return res.status(500).send({ message: `Error to login`, err });
     }
- 
+
 }
 
 export const updateProfile = async (req, res) => {
@@ -103,14 +104,14 @@ export const getUser = async (req, res) => {
     try {
         // Obtener la clave secreta para el token
         const secretKey = process.env.SECRET_KEY;
-        
+
         // Obtener el token de los encabezados
         const { authorization } = req.headers;
         // Verificar el token
         const { uid } = jwt.verify(authorization, secretKey);
-        
+
         // Buscar el usuario por ID
-        const user = await User.findById( uid);
+        const user = await User.findById(uid);
 
         // Comprobar si el usuario existe
         if (!user) {
@@ -148,3 +149,216 @@ export const get = async (req, res) => {
         return res.status(500).send({ message: `Error to get user`, err })
     }
 }
+
+// Obtener mensajes privados antiguos entre usuario y organización
+export const getPrivateMessages = async (req, res) => {
+    try {
+        const { user, organization } = req.body;
+        const data = req.body;
+        let messages = await PrivateMessage.find({
+            user,
+            organization
+        }).sort({ timestamp: 1 }).populate({
+            path: 'user organization',
+            select: 'username name imageProfile'
+        });
+
+        // Si no hay mensajes encontrados, crear uno nuevo
+        if (!messages.length) {
+            const newMessage = new PrivateMessage({
+                messages: [data.message],
+                user: data.user, // ID del usuario
+                organization: data.organization // ID de la organización
+            });
+            await newMessage.save();
+            return res.send({ message: 'guardado', newMessage });
+        }
+
+        // Formatear los mensajes encontrados
+        const formattedMessages = messages.map(message => message.messages).flat();
+        res.send(formattedMessages);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al obtener los mensajes privados' });
+    }
+};
+
+
+// Obtener mensajes privados antiguos entre dos usuarios
+export const getUserMessages = async (req, res) => {
+    try {
+        const { sender, receiver } = req.body
+        const data = req.body
+        const messages = await UserMessage.findOne({
+            $or: [
+                { sender, receiver },
+                { sender: sender, receiver: receiver }
+            ]
+        }).sort({ timestamp: 1 }).populate({
+            path: 'sender receiver',
+            select: 'username imageProfile dpi habilities'
+        })
+
+        let messags = messages.map(message => message.message);
+        console.log(messags);
+
+        if (!messages) {
+            const newMessage = new UserMessage({
+                message: data.message,
+                sender: data.sender,  // ID del usuario remitente
+                receiver: data.receiver  // ID del usuario destinatario
+            })
+            await newMessage.save()
+
+            res.send({ message: 'guardado', newMessage })
+
+        }
+        res.send(messages)
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({ message: 'Error al obtener los mensajes privados entre usuarios' })
+    }
+}
+
+
+// Enviar mensaje privado entre usuario y organización
+export const sendPrivateMessage = async (req, res) => {
+    try {
+        const { user, organization, username, message } = req.body;
+        let privateMessage = await PrivateMessage.findOne({ user, organization });
+
+        if (!privateMessage) {
+            privateMessage = new PrivateMessage({ user, organization, messages: [] });
+        }
+
+        privateMessage.messages.push({ username, message });
+        await privateMessage.save();
+
+        res.status(200).json(privateMessage);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al enviar el mensaje privado' });
+    }
+};
+
+// Enviar mensaje privado entre dos usuarios
+export const sendUserMessage = async (req, res) => {
+    try {
+        const { sender, receiver, message } = req.body;
+        let userMessage = await UserMessage.findOne({ sender, receiver });
+
+        if (!userMessage) {
+            userMessage = new UserMessage({ sender, receiver, messages: [] });
+        }
+
+        userMessage.messages.push({ message });
+        await userMessage.save();
+
+        res.status(200).json(userMessage);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error al enviar el mensaje entre usuarios' });
+    }
+};
+
+
+//Guardar mensajes
+
+export const searchUsers = async (req, res) => {
+    const { query } = req.query;
+    try {
+        const users = await User.find({ name: { $regex: query, $options: 'i' } });
+        res.json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error buscando usuarios' });
+    }
+};
+
+// Función para obtener contactos de un usuario
+export const getUserContacts = async (req, res) => {
+    try {
+        // Obtener el ID de usuario del token decodificado
+        const userId = req.user._id;
+
+        // Obtener contactos de mensajes entre usuarios
+        const userContacts = await UserMessage.aggregate([
+            { 
+                $match: { $or: [{ sender: userId }, { receiver: userId }] } 
+            },
+            {
+                $group: {
+                    _id: null,
+                    contacts: { 
+                        $addToSet: { 
+                            $cond: [
+                                { $ne: ["$sender", userId] }, 
+                                "$sender", 
+                                "$receiver"
+                            ] 
+                        }
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "users", // Nombre de la colección de usuarios
+                    localField: "contacts",
+                    foreignField: "_id",
+                    as: "userContacts"
+                }
+            },
+            {
+                $addFields: {
+                    users: "$userContacts"
+                }
+            },
+            {
+                $project: {
+                    userContacts: 0 // Opcional: para excluir el campo userContacts si no se necesita
+                }
+            }
+        ]);
+
+        // Obtener nombres de organizaciones
+        const orgContacts = await PrivateMessage.aggregate([
+            { 
+                $match: { user: userId } 
+            },
+            {
+                $group: {
+                    _id: "$organization",
+                }
+            },
+            {
+                $lookup: {
+                    from: "organizations", // Nombre de la colección de organizaciones
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "orgContacts"
+                }
+            },
+            {
+                $addFields: {
+                    organizations: "$orgContacts"
+                }
+            },
+            {
+                $project: {
+                    orgContacts: 0 // Opcional: para excluir el campo orgContacts si no se necesita
+                }
+            }
+        ]);
+
+        const contacts = {
+            users: userContacts.length > 0 ? userContacts[0].users : [],
+            organizations: orgContacts.map(contact => contact.organizations[0].name)
+        };
+
+        res.status(200).json(contacts);
+    } catch (error) {
+        console.error('Error al obtener contactos:', error);
+        res.status(500).json({ message: 'Error al obtener contactos', error });
+    }
+};
+

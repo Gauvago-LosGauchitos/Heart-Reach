@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UpdateV, addType, deleteV, listarVolunteering, registerV, test } from './volunteering.controller.js'
+import { UpdateV, addType, deleteV, listarVolunteering, registerV, test, messages } from './volunteering.controller.js'
 
 const api = Router();
 
@@ -9,5 +9,6 @@ api.delete('/deleteV/:id', deleteV)
 api.get('/listarVolunteering', listarVolunteering)
 api.put('/UpdateV/:id', UpdateV)
 api.put('/add/Type', addType)
+api.get('/messages/:chatRoom', messages)
 
 export default api

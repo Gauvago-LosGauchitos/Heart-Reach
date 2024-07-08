@@ -2,7 +2,7 @@ import { Router } from "express"
 import multer from 'multer'
 import { isAdmin } from '../utils/validator.js'
 import { validateJwt } from '../middlewares/validate-jwt.js'
-import { test, register, login, updateProfile, getUser, get  } from './user.controller.js'
+import { test, register, login, updateProfile, getUser, get, getPrivateMessages, getUserMessages, searchUsers, sendPrivateMessage, sendUserMessage, getUserContacts  } from './user.controller.js'
 
 const api = Router();
 
@@ -23,5 +23,11 @@ api.post('/login', login); // Ruta de inicio de sesión
 api.put('/updateProfile/:userId', upload.array('images', 1),[validateJwt], updateProfile); // Ruta para actualizar perfil con subida de imagen
 api.get('/getUser', [validateJwt], getUser);
 api.get('/get', [validateJwt, isAdmin], get);
+api.post('/privateMessages', getPrivateMessages)  
+api.post('/userMessages', getUserMessages) 
+api.post('/privateMessages/send', sendPrivateMessage);
+api.post('/userMessages/send', sendUserMessage);
+api.post('/contacts', [validateJwt], getUserContacts);
+api.get('/search/users', searchUsers);
 
 export default api

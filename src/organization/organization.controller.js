@@ -186,3 +186,14 @@ export const allOrg = async (req, res) => {
         return res.status(500).send({ message: 'Error finding Organization' });
     }
 }
+
+export const searchOrganizations = async (req, res) => {
+    const { query } = req.query;
+    try {
+        const organizations = await Organization.find({ name: { $regex: query, $options: 'i' } });
+        res.json(organizations);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error buscando organizaciones' });
+    }
+};
