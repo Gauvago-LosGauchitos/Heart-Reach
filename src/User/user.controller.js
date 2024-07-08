@@ -32,6 +32,24 @@ export const register = async (req, res) => {
     }
 }
 
+export const registerForAdmin = async (req, res) => {
+    try {
+        let data = req.body;
+       
+        //encriptar la contrasenia y el telefono
+        data.password = await encrypt(data.password);
+
+        //ingresamos el rol cliente por defecto
+        data.role = 'ADMIN';
+        let user = new User(data)
+        await user.save()
+        return res.send({ message: `Admin register successfull!`, user });
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send({ message: `Error registering Admin`, err })
+    }
+}
+
 
 export const login = async (req, res) => {
     try {
@@ -71,21 +89,26 @@ export const updateProfile = async (req, res) => {
     try {
         let { userId } = req.params;
         let data = req.body;
+
         // Verificar si se ha enviado una nueva imagen
         if (req.files && req.files.length > 0) {
             const newImage = req.files[0].path;
+
             // Buscar el usuario actual para obtener la ruta de la imagen anterior
             let currentUser = await User.findById(userId);
+
             // Si el usuario tiene una imagen anterior, borrarla
-            if (currentUser.imageProfile) {
+            if (currentUser.imageProfile && currentUser.imageProfile.length > 0) {
                 const oldImagePath = path.resolve(currentUser.imageProfile[0]); // Acceder al primer elemento del array
                 fs.unlink(oldImagePath, (err) => {
                     if (err) console.error(`No se pudo eliminar la imagen anterior: ${err}`);
                 });
             }
+
             // Asignar la nueva ruta de la imagen al campo imageProfile
-            data.imageProfile = newImage;
+            data.imageProfile = [newImage]; // Almacenar la nueva imagen en un array
         }
+
         // Actualizar el perfil del usuario
         let user = await User.findOneAndUpdate(
             { _id: userId },
@@ -93,7 +116,7 @@ export const updateProfile = async (req, res) => {
             { new: true }
         );
 
-        return res.send({ message: 'Perfil modificado exitosamente' });
+        return res.send({ message: 'Perfil modificado exitosamente', user });
     } catch (err) {
         console.error(err);
         return res.status(500).send({ message: 'Error al modificar el perfil de otro usuario' });
