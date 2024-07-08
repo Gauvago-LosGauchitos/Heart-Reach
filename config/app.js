@@ -6,15 +6,37 @@ import morgan from 'morgan'
 import helmet from 'helmet'
 import cors from 'cors'
 import { config } from "dotenv"
+import path from 'path';
 import volunteeringRoutes from '../src/volunteering/volunteering.routes.js'
 import orgRoutes from "../src/organization/organization.routes.js"
 import userRoutes from '../src/User/user.routes.js'
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
  
 //Inicializacion
+
+// Obtener la ruta del archivo actual
+const __filename = fileURLToPath(import.meta.url);
+
+// Obtener el directorio base de la aplicación
+const __dirname = dirname(__filename);
  
 const app = express()
     config();
     const port = process.env.PORT || 2690
+
+    // Configuración del servidor
+app.use(express.urlencoded({ extended: 'false' }));
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+}));
+app.use(express.json());
+// Permitir solicitudes de origen cruzado
+app.use(cors());
+app.use(morgan('dev'));
+
+const staticFilesPath = path.join(__dirname, '../dataImages');
+app.use('/dataImages', express.static(staticFilesPath));
  
     app.use(express.urlencoded({extended: false}))
     app.use(express.json())

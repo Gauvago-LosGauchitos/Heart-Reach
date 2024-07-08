@@ -41,6 +41,7 @@ const userSchema = Schema({
     },
     habilities: {
         type: String,
+        maxLength: [200, 'The habilities must be 200 characters long'],
         required: false
     },
     imageProfile: {
