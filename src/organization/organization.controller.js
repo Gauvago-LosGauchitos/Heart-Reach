@@ -164,9 +164,10 @@ export const orgUpdate = async (req, res) => {
 
 export const searchOrg = async (req, res) => {
     try {
-        let { name } = req.body;
-        let organizations = await Organization.findOne(
-            { name: { $regex: name, $options: 'i' } }
+        let { id } = req.body;
+        console.log(id)
+        let organizations = await Organization.findById(
+            id
         );
 
         return res.send({ organizations });
@@ -175,6 +176,8 @@ export const searchOrg = async (req, res) => {
         return res.status(500).send({ message: 'Error searching Organization' });
     }
 }
+
+
 
 export const allOrg = async (req, res) => {
     try {
