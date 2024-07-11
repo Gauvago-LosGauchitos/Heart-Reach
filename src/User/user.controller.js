@@ -85,17 +85,25 @@ export const login = async (req, res) => {
 
 }
 
+
+
+
+
 export const updateProfile = async (req, res) => {
     try {
-        let { userId } = req.params;
         let data = req.body;
+
+        // Obtener userId del token de autorización
+        let { authorization } = req.headers;
+        let secretKey = process.env.SECRET_KEY;
+        let { uid } = jwt.verify(authorization, secretKey); // Extraer el userId del token
 
         // Verificar si se ha enviado una nueva imagen
         if (req.files && req.files.length > 0) {
             const newImage = req.files[0].path;
 
             // Buscar el usuario actual para obtener la ruta de la imagen anterior
-            let currentUser = await User.findById(userId);
+            let currentUser = await User.findById(uid);
 
             // Si el usuario tiene una imagen anterior, borrarla
             if (currentUser.imageProfile && currentUser.imageProfile.length > 0) {
@@ -111,15 +119,19 @@ export const updateProfile = async (req, res) => {
 
         // Actualizar el perfil del usuario
         let user = await User.findOneAndUpdate(
-            { _id: userId },
+            { _id: uid },
             data,
             { new: true }
         );
 
+        if (!user) {
+            return res.status(404).send({ message: 'User not found' });
+        }
+
         return res.send({ message: 'Perfil modificado exitosamente', user });
     } catch (err) {
         console.error(err);
-        return res.status(500).send({ message: 'Error al modificar el perfil de otro usuario' });
+        return res.status(500).send({ message: 'Error al modificar el perfil del usuario' });
     }
 };
 

@@ -21,7 +21,7 @@ api.get('/test', test); // Ruta de prueba
 api.post('/register', upload.array('images', 10), register); // Ruta de registro con subida de imágenes
 api.post('/registerForAdmin',[validateJwt,isAdmin], upload.array('images', 10), registerForAdmin);
 api.post('/login', login); // Ruta de inicio de sesión
-api.put('/updateProfile/:userId', upload.array('images', 1),[validateJwt], updateProfile); // Ruta para actualizar perfil con subida de imagen
+api.put('/updateProfile', upload.array('images', 1),[validateJwt], updateProfile); // Ruta para actualizar perfil con subida de imagen
 api.get('/getUser', [validateJwt], getUser);
 api.get('/get', [validateJwt, isAdmin], get);
 api.post('/privateMessages', getPrivateMessages)  
