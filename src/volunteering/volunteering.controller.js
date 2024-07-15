@@ -176,3 +176,34 @@ export const messages = async (req, res) => {
     }
 }
 
+//actualizar estado
+export const updateStatus = async (req, res) => {
+    try {
+        const actividades = await Volunteering.find().select('date')
+
+        const fechaActual = new Date();
+        console.log('Fecha actual:', fechaActual);
+
+         // Recorrer todas las actividades y comparar las fechas
+         actividades.forEach(actividad => {
+            if (actividad.date < fechaActual) {
+                // Instrucciones si la fecha de la actividad es anterior a la fecha actual
+                
+                console.log(`La actividad con fecha ${actividad.date} es anterior a la fecha actual.`);
+            } else if (actividad.date > fechaActual) {
+                // Instrucciones si la fecha de la actividad es posterior a la fecha actual
+                console.log(`La actividad con fecha ${actividad.date} es posterior a la fecha actual.`);
+            } else {
+                // Instrucciones si la fecha de la actividad es igual a la fecha actual
+                console.log(`La actividad con fecha ${actividad.date} es en la fecha actual.`);
+            }
+        });
+
+        // Responder con éxito y las actividades obtenidas
+        res.status(200).send(actividades);
+    }catch(err){
+        console.error(err)
+        res.status(500).send({ message: 'Error al obtener los mensajes' })
+    }
+}
+
