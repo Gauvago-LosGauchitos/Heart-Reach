@@ -16,11 +16,10 @@ const volunteeringSchema = new mongoose.Schema({
 
     },
 
-    TypeOfVolunteering: {
-        type: String,
-        upercase: true,
-        enum: ['DEFAULT'],
-        required: [true, 'Type of volunteering required']
+    typeOfVolunteering: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'TypeOfVolunteering',
+        required: [true, 'El tipo de voluntariado es obligatorio']
     },
 
     description: {
@@ -42,13 +41,35 @@ const volunteeringSchema = new mongoose.Schema({
         default: Date.now,
         required: true
     },
-    
+
+    timeStart:{
+        type: String,
+        required: [true, 'Time start is required'],
+    },
+
+    timeEnd:{
+        type: String,
+        required: [true, 'Time end is required'],
+    },
+
+    imageVol: {
+        type: [String],
+        required: false
+    },
+
     quota: {
         type: Number,
         required: [true, 'Quota is required'],
         min: [1, 'Quota must be at least 1'],
         max: [20, 'Quota cannot exceed 20']
-    }
+    },
+    estado:{
+        type: String,
+        enum: ['Disponible', 'Inactivo', 'En Curso'],
+        default: 'Activo',
+        required: [true, 'estado is required'],
+        }
+
 
 })
 

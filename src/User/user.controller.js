@@ -5,6 +5,7 @@ import { generateJwt } from '../utils/jwt.js';
 import fs from 'fs';
 import path from 'path';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import { PrivateMessage } from '../chat/privateMessage.model.js';
 import { UserMessage } from '../chat/userMessage.model.js'
 
@@ -84,10 +85,6 @@ export const login = async (req, res) => {
     }
 
 }
-
-
-
-
 
 export const updateProfile = async (req, res) => {
     try {
@@ -219,41 +216,38 @@ export const getPrivateMessages = async (req, res) => {
 };
 
 
-// Obtener mensajes privados antiguos entre dos usuarios
 export const getUserMessages = async (req, res) => {
     try {
-        const { sender, receiver } = req.body
-        const data = req.body
-        const messages = await UserMessage.findOne({
+        const { sender, receiver } = req.body;
+
+        // Verifica si sender y receiver están presentes y son strings
+        const senderId = new mongoose.Types.ObjectId(sender.sender || sender);
+        const receiverId = new mongoose.Types.ObjectId(receiver || sender.receiver);
+
+        // Encuentra los mensajes entre el remitente y el receptor
+        const messages = await UserMessage.find({
             $or: [
-                { sender, receiver },
-                { sender: sender, receiver: receiver }
+                { sender: senderId, receiver: receiverId },
+                { sender: receiverId, receiver: senderId }
             ]
         }).sort({ timestamp: 1 }).populate({
             path: 'sender receiver',
             select: 'username imageProfile dpi habilities'
-        })
+        });
 
-        let messags = messages.map(message => message.message);
+        // Mapea los mensajes si existen
+        let messags = messages ? messages.map(message => message.message) : [];
         console.log(messags);
 
-        if (!messages) {
-            const newMessage = new UserMessage({
-                message: data.message,
-                sender: data.sender,  // ID del usuario remitente
-                receiver: data.receiver  // ID del usuario destinatario
-            })
-            await newMessage.save()
-
-            res.send({ message: 'guardado', newMessage })
-
-        }
-        res.send(messages)
+        // Devuelve los mensajes encontrados
+        res.send(messages);
     } catch (err) {
-        console.error(err)
-        res.status(500).json({ message: 'Error al obtener los mensajes privados entre usuarios' })
+        console.error(err);
+        res.status(500).json({ message: 'Error al obtener los mensajes privados entre usuarios' });
     }
-}
+};
+
+
 
 
 // Enviar mensaje privado entre usuario y organización
