@@ -37,7 +37,7 @@ const volunteeringSchema = new mongoose.Schema({
     },
 
     date: {
-        type: Date,
+        type: String,
         default: Date.now,
         required: true
     },
@@ -66,7 +66,7 @@ const volunteeringSchema = new mongoose.Schema({
     estado:{
         type: String,
         enum: ['Disponible', 'Inactivo', 'En Curso'],
-        default: 'Activo',
+        default: 'Disponible',
         required: [true, 'estado is required'],
         }
 

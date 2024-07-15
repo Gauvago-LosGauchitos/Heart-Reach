@@ -15,6 +15,7 @@ export const test = (req, res) => {
 export const registerV = async (req, res) => {
     try {
         let data = req.body;
+        console.log(data)
 
         // Buscar el tipo de voluntariado
         let typeOfVolunteering = await TypeOfVolunteering.findOne({ name: data.typeOfVolunteering.toUpperCase() });
@@ -53,7 +54,7 @@ export const registerV = async (req, res) => {
         await volunteering.save();
         return res.send({ message: '¡El voluntariado se ha registrado con éxito!' });
     } catch (err) {
-        return res.status(500).send({ message: 'Error al registrar el voluntariado', err: err });
+        return res.status(500).send({ message: 'Error al registrar el voluntariado', err });
     }
 }
 
