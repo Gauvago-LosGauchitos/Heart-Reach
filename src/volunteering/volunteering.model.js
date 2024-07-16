@@ -42,12 +42,12 @@ const volunteeringSchema = new mongoose.Schema({
         required: true
     },
 
-    timeStart:{
+    timeStart: {
         type: String,
         required: [true, 'Time start is required'],
     },
 
-    timeEnd:{
+    timeEnd: {
         type: String,
         required: [true, 'Time end is required'],
     },
@@ -63,12 +63,13 @@ const volunteeringSchema = new mongoose.Schema({
         min: [1, 'Quota must be at least 1'],
         max: [20, 'Quota cannot exceed 20']
     },
-    estado:{
+
+    estado: {
         type: String,
-        enum: ['Disponible', 'Inactivo', 'En Curso'],
+        enum: ['Disponible', 'Terminado', 'En Curso'],
         default: 'Disponible',
         required: [true, 'estado is required'],
-        }
+    }
 
 
 })
