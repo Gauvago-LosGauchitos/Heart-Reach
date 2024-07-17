@@ -53,6 +53,11 @@ const userSchema = Schema({
         uppercase: true,
         enum: ['ADMIN', 'ADMIN-ASOCIATION', 'USER'],
         required: [true, 'Role is required.']
+    },
+    volusTerminados:{
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'volunteering',
+        require: false
     }
 })
 
