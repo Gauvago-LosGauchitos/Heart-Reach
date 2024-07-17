@@ -55,10 +55,9 @@ const userSchema = Schema({
         required: [true, 'Role is required.']
     },
     volusTerminados:{
-        type: [mongoose.Schema.Types.ObjectId],
+        type: [Schema.Types.ObjectId],
         ref: 'volunteering',
         require: false
     }
 })
-
 export default model('user', userSchema);
