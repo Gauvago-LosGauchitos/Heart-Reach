@@ -10,38 +10,60 @@ export const test = (req, res) => {
 
 export const orgRequest = async (req, res) => {
     try {
-        let data = req.body
-        data.owner = req.user._id
+        let data = req.body;
+        data.owner = req.user._id;
+
+        // Validar que el usuario no sea 'ADMIN-ASOCIATION' o 'ADMIN'
+        if (req.user.role === 'ADMIN-ASOCIATION' || req.user.role === 'ADMIN') {
+            return res.status(400).send({
+                message: 'You have an organization or you are an admin.'
+            });
+        }
+
+        // Comprobar si ya existe una organización con el mismo nombre, dirección o número de teléfono
         const existingOrg = await Organization.findOne({
             $or: [
-                {
-                    name: data.name
-                },
-                {
-                    address: data.address
-                }
+                { name: data.name },
+                { address: data.address },
+                { phone: data.phone }
             ]
-        })
-        if (req.user.role === 'ADMIN-ASOCIATION' || req.user.role === 'ADMIN') return res.status(400).send({
-            message: 'You have an organization or you are an admin.'
         });
 
         if (existingOrg) {
             return res.status(400).send({
-                message: 'The org Request request already exists or repeated data. The data that cannot be repeated is the name, address and telephone number.'
+                message: 'The org request already exists or repeated data. The data that cannot be repeated is the name, address, and phone number.'
             });
         }
-        let orgRequest = new Organization(data);
-        console.log(data)
-        await orgRequest.save();
+
+        // Convertir imágenes a un arreglo de strings si es necesario
+        if (data.images && data.images.length > 0) {
+            const imageUrls = data.images.map(image => image.url.toString());
+            data.images = imageUrls;
+        } else {
+            data.images = [];
+        }
+
+        // Crear una nueva solicitud de organización
+        let newOrgRequest = new Organization({
+            name: data.name,
+            description: data.description,
+            address: data.address,
+            phone: data.phone,
+            images: data.images,
+            owner: req.user._id
+        });
+
+        await newOrgRequest.save();
+
         return res.send({
-            message: '¡The hotel Request has been successfully registered!'
+            message: 'The organization request has been successfully registered!'
         });
     } catch (err) {
-        console.log(err)
-        return res.status(500).send({ message: 'Error solicitating the organization' })
+        console.error(err);
+        return res.status(500).send({ message: 'Error requesting the organization', error: err });
     }
-}
+};
+
 
 export const orgConfirm = async (req, res) => {
     try {
