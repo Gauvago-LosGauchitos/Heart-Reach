@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UpdateV, addType, deleteV, listarVolunteering, registerV, test, messages, getVolunteeringTypes, updateStatus } from './volunteering.controller.js'
+import { UpdateV, addType, deleteV, listarVolunteering, registerV, test, messages, getVolunteeringTypes, updateStatus, assignVolunteering } from './volunteering.controller.js'
 import { validateJwt } from "../middlewares/validate-jwt.js";
 import { upload } from '../utils/multerConfig.js';
 
@@ -14,5 +14,6 @@ api.put('/add/Type', addType)
 api.get('/messages/:chatRoom', messages)
 api.get('/getTypesOfVolunteering', [validateJwt], getVolunteeringTypes)
 api.get('/actualizate/status', updateStatus)
+api.put('/assignVolunteering', [validateJwt], assignVolunteering)
 
 export default api

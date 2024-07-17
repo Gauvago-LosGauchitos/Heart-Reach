@@ -1,5 +1,6 @@
 import Volunteering from "./volunteering.model.js"
 import { checkUpdateV } from "../utils/validator.js"
+import userModel from "../User/user.model.js";
 import mongoose from 'mongoose';
 import TypeOfVolunteering from './typeOfVolunteering.model.js';
 import { Message } from "../chat/message.model.js";
@@ -12,52 +13,128 @@ export const test = (req, res) => {
     return res.send({ message: 'Test is running' })
 }
 
-//Register
+// Register
 export const registerV = async (req, res) => {
     try {
-        let data = req.body;
-        console.log(data)
+        const data = req.body;
+        console.log('Data received:', data.location);
+
+        if (data.error) {
+            return res.status(400).send({ message: data.error });
+        }
 
         // Buscar el tipo de voluntariado
-        let typeOfVolunteering = await TypeOfVolunteering.findOne({ name: data.typeOfVolunteering.toUpperCase() });
+        let typeOfVolunteering = await TypeOfVolunteering.findOne({ name: data.typeOfVolunteering });
+        console.log('TypeOfVolunteering found:', typeOfVolunteering);
 
         // Si no existe, crear uno nuevo
         if (!typeOfVolunteering) {
-            typeOfVolunteering = new TypeOfVolunteering({ name: data.typeOfVolunteering.toUpperCase() });
+            typeOfVolunteering = new TypeOfVolunteering({ name: data.typeOfVolunteering });
             await typeOfVolunteering.save();
+            console.log('TypeOfVolunteering created:', typeOfVolunteering);
         }
 
         const existingVolunteering = await Volunteering.findOne({ title: data.title });
-        if (existingVolunteering) return res.status(400).send({ message: 'El voluntariado ya existe' });
+        if (existingVolunteering) {
+            console.log('Volunteering already exists:', existingVolunteering);
+            return res.status(400).send({ message: 'El voluntariado ya existe' });
+        }
 
         if (req.file) {
             const imageData = fs.readFileSync(req.file.path);
-            const base64Image = Buffer.from(imageData).toString('base64')
-            const imageUrl = `data:${req.file.mimetype};base64,${base64Image}`
-            data.imageVol = imageUrl
+            const base64Image = Buffer.from(imageData).toString('base64');
+            const imageUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+            data.imageVol = imageUrl;
 
-            fs.unlinkSybc(req.file.path)
+            fs.unlinkSync(req.file.path);
+            console.log('Image processed and deleted from temp storage');
         }
 
         const allvolunters = await Volunteering.find({ organization: data.organization });
+        if (!allvolunters) {
+            console.log('No organization found for:', data.organization);
+            return res.status(400).send({ message: 'No se ha encontrado ninguna organización' });
+        }
+
         const date = new Date(data.date);
-        const ahora = new Date(Date.now());
-        ahora.setDate(ahora.getDate() + 7);
-        const volLength = parseInt(allvolunters.length);
+        const ahora = new Date(moment().tz('America/Guatemala').format('MM-DD-YYYY'))
+        /* ahora.setDate(ahora.getDate() + 7);*/
+        const volLength = allvolunters.length;
 
-        if (volLength > 2) return res.status(400).send({ message: 'Esta organización ya tiene 3 voluntariados' });
-        if (date <= ahora) return res.status(400).send({ message: 'La fecha es muy próxima o ya ha pasado' });
+        if (volLength > 2) {
+            console.log('Organization has more than 3 volunteerings:', volLength);
+            return res.status(400).send({ message: 'Esta organización ya tiene 3 voluntariados' });
+        }
+        if (date <= ahora) {
+            console.log('Date is too soon or has passed:', date, ahora);
+            return res.status(400).send({ message: 'La fecha es muy próxima o ya ha pasado' });
+        }
 
+        const [horaInicioHoras, horaInicioMinutos] = data.timeStart.split(':').map(Number);
+        const [horaFinHoras, horaFinMinutos] = data.timeEnd.split(':').map(Number);
+
+        const minutosInicio = horaInicioHoras * 60 + horaInicioMinutos;
+        const minutosFin = horaFinHoras * 60 + horaFinMinutos;
+
+        if (minutosFin < minutosInicio) {
+            return res.status(400).send({ message: 'No se puede finalizar un evento si no a terminado' });
+        }
         // Asignar el tipo de voluntariado encontrado o creado
         data.typeOfVolunteering = typeOfVolunteering._id;
 
         let volunteering = new Volunteering(data);
         await volunteering.save();
+        console.log('Volunteering registered:', volunteering);
         return res.send({ message: '¡El voluntariado se ha registrado con éxito!' });
     } catch (err) {
+        console.error('Error while registering volunteering:', err);
         return res.status(500).send({ message: 'Error al registrar el voluntariado', err });
     }
+};
+
+// Asignarse a un voluntariado
+export const assignVolunteering = async (req, res) => {
+    try {
+        const { volunteering: volunteeringId } = req.body; // Obtener el ID del voluntariado desde el cuerpo de la solicitud
+        const uid = req.user._id; // Obtener el ID del usuario desde el objeto de usuario autenticado
+
+        // Buscar el voluntariado por su ID
+        const volunteering = await Volunteering.findById(volunteeringId);
+        if (!volunteering) {
+            console.log('No volunteering found for:', volunteeringId);
+            return res.status(400).send({ message: 'No se ha encontrado ningún voluntariado' });
+        }
+
+        // Log del voluntariado encontrado para verificar los datos
+        console.log('Volunteering found:', volunteering);
+
+        // Verificar si el usuario ya está asignado a ese voluntariado específico
+        const userAlreadyAssigned = volunteering.volunteers.includes(uid);
+        if (userAlreadyAssigned) {
+            console.log('User already assigned to volunteering:', uid, volunteering._id);
+            return res.status(400).send({ message: 'Este usuario ya está asignado a este voluntariado' });
+        }
+
+        // Verificar si se ha alcanzado la cuota máxima de voluntarios
+        if (volunteering.volunteers.length >= volunteering.quota) {
+            console.log('Volunteer quota reached for volunteering:', volunteering._id);
+            return res.status(400).send({ message: 'Se ha alcanzado la cuota máxima de voluntarios' });
+        }
+
+        // Añadir al usuario a la lista de voluntarios del voluntariado
+        volunteering.volunteers.push(uid);
+        await volunteering.save();
+
+        console.log('User assigned to volunteering:', uid, volunteering._id);
+        return res.send({ message: '¡El usuario se ha asignado al voluntariado con éxito!' });
+
+    } catch (error) {
+        console.error('Error asignando voluntariado:', error);
+        return res.status(500).send({ message: 'Error al asignarse al voluntariado', error });
+    }
 }
+
+
 
 //Crear tipos de voluntariados por defecto
 export const createDefaultTypes = async () => {
