@@ -195,24 +195,66 @@ export const updateStatus = async (req, res) => {
         // Recorrer todas las actividades y comparar las fechas
         for (const actividad of actividades) {
             const fechaActividad = new Date(actividad.date);
-            console.log('La fecha es:', actividad._id);
+            console.log('La fecha es:', fechaActividad);
 
-            if (fechaActividad < fechaActual) {
+            if (fechaActividad > fechaActual) {
                 // Obtener los datos completos de la actividad
                 const actividadCompleta = await Volunteering.findById(actividad._id);
+                // La actividad no ha comenzado
+                if (actividadCompleta.estado !== 'Disponible') {
+                    // Actualizar el estado de la actividad
+                    const actividadActualizada = await Volunteering.findOneAndUpdate(
+                        { _id: actividadCompleta._id },
+                        { estado: 'Disponible' },
+                        { new: true }
+                    );
+                    resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+                }
+                console.log(`La actividad con fecha ${fechaActividad} y hora inicio ${actividad.timeStart} aun no ha comenzado.`);
 
+            } else if (fechaActividad < fechaActual) {
+                // Instrucciones si la fecha de la actividad es posterior a la fecha actual
+                const actividadCompleta = await Volunteering.findById(actividad._id);
+
+                // La actividad ya ha terminado
+                if (actividadCompleta.estado !== 'Terminado') {
+                    // Actualizar el estado de la actividad
+                    const actividadActualizada = await Volunteering.findOneAndUpdate(
+                        { _id: actividadCompleta._id },
+                        { estado: 'Terminado' },
+                        { new: true }
+
+                    );
+                    resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+                }
+
+                console.log(`La actividad con fecha ${fechaActividad} es posterior a la fecha actual.`);
+            } else if (fechaActividad.getTime() == fechaActual.getTime()) {
+                // Instrucciones si la fecha de la actividad es igual a la fecha actual
+                const actividadCompleta = await Volunteering.findById(actividad._id);
+
+                const fechaActividad = new Date(actividad.date);
+                console.log('La fecha es:', actividad.date);
                 // Comparar la hora de inicio
                 const horaInicio = actividadCompleta.timeStart;
+                const horaFin = actividadCompleta.timeEnd;
+                console.log(`La actividad con fecha ${fechaActividad} es hoy.`);
 
                 // Convertir las horas a minutos para facilitar la comparación
                 const [horaInicioHoras, horaInicioMinutos] = horaInicio.split(':').map(Number);
+                const [horaFinHoras, horaFinMinutos] = horaFin.split(':').map(Number);
                 const [horaActualHoras, horaActualMinutos] = horaActual.split(':').map(Number);
 
                 const minutosInicio = horaInicioHoras * 60 + horaInicioMinutos;
+                const minutosFin = horaFinHoras * 60 + horaFinMinutos;
                 const minutosActuales = horaActualHoras * 60 + horaActualMinutos;
+                console.log("son las ", minutosActuales, " y la actividad es a las ", minutosInicio)
+                console.log("son las ", minutosActuales, " y la actividad termina a las ", minutosFin)
 
-                if (minutosInicio < minutosActuales) {
-                    // La actividad ya ha comenzado
+                if (minutosActuales < minutosInicio) {
+                    // La actividad aun no ha comenzado
+                    const actividadCompleta = await Volunteering.findById(actividad._id);
+
                     if (actividadCompleta.estado !== 'Disponible') {
                         // Actualizar el estado de la actividad
                         const actividadActualizada = await Volunteering.findOneAndUpdate(
@@ -220,27 +262,56 @@ export const updateStatus = async (req, res) => {
                             { estado: 'Disponible' },
                             { new: true }
                         );
+                        resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+                    }
+                    console.log(`La actividad con fecha ${fechaActividad} y hora inicio ${actividad.timeStart} aun no ha comenzado.`);
+                }
+                else if (minutosActuales > minutosFin) {
+                    // La actividad ya ha terminado
+                    const actividadCompleta = await Volunteering.findById(actividad._id);
 
+                    if (actividadCompleta.estado !== 'Terminado') {
+                        // Actualizar el estado de la actividad
+                        const actividadActualizada = await Volunteering.findOneAndUpdate(
+                            { _id: actividadCompleta._id },
+                            { estado: 'Terminado' },
+                            { new: true }
+                        );
                         resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
                     }
 
-                    console.log(`La actividad con fecha ${fechaActividad} y hora inicio ${horaInicio} ya ha comenzado.`);
-                } else {
-                    console.log(`La actividad con fecha ${fechaActividad} y hora inicio ${horaInicio} aún no ha comenzado.`);
+                    console.log(`La actividad con fecha ${fechaActividad} es posterior a la fecha actual.`);
+                } else if (minutosActuales > minutosInicio && minutosActuales < minutosFin) {
+                    // Actualizar el estado de la actividad
+                    // Instrucciones si la fecha de la actividad es posterior a la fecha actual
+                    const actividadCompleta = await Volunteering.findById(actividad._id);
+
+                    // La actividad ya ha terminado
+                    if (actividadCompleta.estado !== 'En Curso') {
+                        // Actualizar el estado de la actividad
+                        const actividadActualizada = await Volunteering.findOneAndUpdate(
+                            { _id: actividadCompleta._id },
+                            { estado: 'En Curso' },
+                            { new: true }
+
+                        );
+                        resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+                    }
+
+                    console.log(`La actividad con fecha ${fechaActividad} esta en curso.`);
+
                 }
-            } else if (fechaActividad > fechaActual) {
-                // Instrucciones si la fecha de la actividad es posterior a la fecha actual
-                console.log(`La actividad con fecha ${fechaActividad} es posterior a la fecha actual.`);
-            } else {
-                // Instrucciones si la fecha de la actividad es igual a la fecha actual
-                console.log(`La actividad con fecha ${fechaActividad} es en la fecha actual.`);
+
+            }
+            else {
+                console.log('no jalo')
             }
         }
 
         // Responder con éxito y los resultados de las actualizaciones
-        res.status(200).json({ message: 'Actualización completada', resultados: resultadosActualizacion });
+        console.log({ message: 'Actualización completada', resultados: resultadosActualizacion });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Error al obtener los mensajes' });
+        console.log({ message: 'Error al obtener los mensajes' });
     }
 };
