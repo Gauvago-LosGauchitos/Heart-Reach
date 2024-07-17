@@ -20,7 +20,8 @@
     "mongoose": "^8.4.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "socket.io": "^4.7.5"
+    "socket.io": "^4.7.5",
+    "moment-timezone": "^0.5.45"
   },
   "devDependencies": {
     "nodemon": "^3.1.1"
