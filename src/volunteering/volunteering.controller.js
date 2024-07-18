@@ -1,6 +1,6 @@
 import Volunteering from "./volunteering.model.js"
 import { checkUpdateV } from "../utils/validator.js"
-import userModel from "../User/user.model.js";
+import User from "../User/user.model.js";
 import mongoose from 'mongoose';
 import TypeOfVolunteering from './typeOfVolunteering.model.js';
 import { Message } from "../chat/message.model.js";
@@ -286,6 +286,7 @@ export const updateStatus = async (req, res) => {
                         { new: true }
                     );
                     resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+
                 }
                 console.log(`La actividad con fecha ${fechaActividad} y hora inicio ${actividad.timeStart} aun no ha comenzado.`);
 
@@ -302,9 +303,38 @@ export const updateStatus = async (req, res) => {
                         { new: true }
 
                     );
+
+
                     resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
                 }
 
+                // Guardar la informacion que hicieron el voluntariado a los usuarios en la base de datos
+                for (const participant of actividadCompleta.volunteers) {
+                    const participeUser = await User.findById(participant)
+                    console.log(participeUser.volusTerminados)
+                    if (!Array.isArray(participeUser.volusTerminados)) {
+                        participeUser.volusTerminados = [];
+                        await participeUser.save()
+                        console.log('ola')
+                    }
+
+                    console.log(`Voluntario ${participeUser.name}: ${participant}`);
+
+                    if (participeUser.volusTerminados.includes(actividadCompleta._id)) {
+                        console.log('El voluntario ya está en el array');
+                    }else{
+                        participeUser.volusTerminados.push(actividadCompleta._id)
+                        await participeUser.save()
+                        console.log(`se guardo el voluntariado terminado al usuario ${participeUser.name}`)
+                    }
+
+
+                    
+                    
+
+                };
+
+                //respuesta del servidor
                 console.log(`La actividad con fecha ${fechaActividad} es posterior a la fecha actual.`);
             } else if (fechaActividad.getTime() == fechaActual.getTime()) {
                 // Instrucciones si la fecha de la actividad es igual a la fecha actual
@@ -355,6 +385,8 @@ export const updateStatus = async (req, res) => {
                             { new: true }
                         );
                         resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+
+
                     }
 
                     console.log(`La actividad con fecha ${fechaActividad} es posterior a la fecha actual.`);

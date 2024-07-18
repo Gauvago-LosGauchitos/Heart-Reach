@@ -57,6 +57,7 @@ const userSchema = Schema({
     volusTerminados:{
         type: [Schema.Types.ObjectId],
         ref: 'volunteering',
+        default: [],
         require: false
     }
 })

@@ -65,6 +65,7 @@ const volunteeringSchema = new mongoose.Schema({
     volunteers: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: 'user',
+        default: [],
         required: false
     }
 });
