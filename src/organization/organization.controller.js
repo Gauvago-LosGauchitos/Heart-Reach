@@ -217,7 +217,7 @@ export const allOrg = async (req, res) => {
 
 export const allPendingOrg = async (req, res) => {
     try {
-        let organizations = await Organization.find({role: 'EN ESPERA'});
+        let organizations = await Organization.find({ role: 'EN ESPERA' }).populate('owner', 'name');
 
         return res.send({ organizations });
     } catch (err) {
