@@ -15,6 +15,11 @@ api.get('/messages/:chatRoom', messages)
 api.get('/getTypesOfVolunteering', [validateJwt], getVolunteeringTypes)
 api.get('/actualizate/status', updateStatus)
 api.put('/assignVolunteering', [validateJwt], assignVolunteering)
+<<<<<<< HEAD
 api.get('/listarVolunteeringDisponiblesEnCurso', listarVolunteeringDisponiblesEnCurso)
 
+=======
+api.get('/volunteering/disponible', listarVolunteeringDisponiblesEnCurso)
+api.get('/getVolunteering/:id', findVolunteer)
+>>>>>>> 65545cca40255b3e1f0bf4f1da43603f40766b22
 export default api

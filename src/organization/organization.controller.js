@@ -215,6 +215,17 @@ export const allOrg = async (req, res) => {
     }
 }
 
+export const allPendingOrg = async (req, res) => {
+    try {
+        let organizations = await Organization.find({role: 'EN ESPERA'});
+
+        return res.send({ organizations });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ message: 'Error finding Organization' });
+    }
+}
+
 export const searchOrganizations = async (req, res) => {
     const { query } = req.query;
     try {
