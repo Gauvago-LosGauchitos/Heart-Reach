@@ -1,5 +1,6 @@
 import Organization from './organization.model.js'
 import User from '../User/user.model.js'
+import fs from 'fs';
 
 export const test = (req, res) => {
     console.log('test panoli')
@@ -35,12 +36,14 @@ export const orgRequest = async (req, res) => {
             });
         }
 
-        // Convertir imágenes a un arreglo de strings si es necesario
-        if (data.images && data.images.length > 0) {
-            const imageUrls = data.images.map(image => image.url.toString());
-            data.images = imageUrls;
-        } else {
-            data.images = [];
+        // Procesar la imagen subida si existe
+        if (req.file) {
+            const imageData = fs.readFileSync(req.file.path);
+            console.log(imageData)
+            const base64Image = Buffer.from(imageData).toString('base64');
+            const imageUrl = `data:${req.file.mimetype};base64,${base64Image}`;
+            data.images = imageUrl;
+            fs.unlinkSync(req.file.path); 
         }
 
         // Crear una nueva solicitud de organización
@@ -54,9 +57,9 @@ export const orgRequest = async (req, res) => {
         });
 
         await newOrgRequest.save();
-
         return res.send({
             message: 'The organization request has been successfully registered!'
+            
         });
     } catch (err) {
         console.error(err);
