@@ -392,11 +392,11 @@ export const getUserContacts = async (req, res) => {
     }
 };
 
-export const getParticipatingVolunteers = async (req, res) =>{
+export const getParticipatedVolunteers = async (req, res) =>{
     try {
         const userId = req.user._id;
-        const volunteers = await Volunteers.find({volunteers: userId}).select('title')
-        console.log(volunteers)
+        const history = await User.findById(userId).select(volusTerminados)
+        res.status(200).json({ message: 'El usuario esta participando actualmente en los actuales y futuros voluntariados: ', history });
     }catch (error) {
         console.error('Error al obtener voluntariados:', error);
         res.status(500).json({ message: 'Error al obtener voluntariados', error });

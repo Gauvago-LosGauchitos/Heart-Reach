@@ -2,7 +2,7 @@ import { Router } from "express"
 import multer from 'multer'
 import { isAdmin } from '../utils/validator.js'
 import { validateJwt } from '../middlewares/validate-jwt.js'
-import { test, register, registerForAdmin, login, updateProfile, getUser, get, getPrivateMessages, getUserMessages, searchUsers, sendPrivateMessage, sendUserMessage, getUserContacts, getParticipatingVolunteers  } from './user.controller.js'
+import { test, register, registerForAdmin, login, updateProfile, getUser, get, getPrivateMessages, getUserMessages, searchUsers, sendPrivateMessage, sendUserMessage, getUserContacts, getParticipatedVolunteers  } from './user.controller.js'
 
 const api = Router();
 
@@ -31,6 +31,6 @@ api.post('/userMessages/send', sendUserMessage);
 api.post('/contacts', [validateJwt], getUserContacts);
 api.get('/search/users', searchUsers);
 
-api.get('/get/volunterings/participating', [validateJwt], getParticipatingVolunteers)
+api.get('/get/volunterings/participated', [validateJwt], getParticipatedVolunteers)
 
 export default api
