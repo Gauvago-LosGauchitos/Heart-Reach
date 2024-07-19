@@ -95,8 +95,8 @@ export const registerV = async (req, res) => {
 // Asignarse a un voluntariado
 export const assignVolunteering = async (req, res) => {
     try {
-        const { volunteering: volunteeringId } = req.body; 
-        const uid = req.user._id; 
+        const { volunteering: volunteeringId } = req.body;
+        const uid = req.user._id;
 
         // Buscar el voluntariado por su ID
         const volunteering = await Volunteering.findById(volunteeringId);
@@ -134,9 +134,9 @@ export const assignVolunteering = async (req, res) => {
     }
 }
 
-export const backOutVolunteering = async(req, res) => {
-    try{
-        const {volunteering} = req.body;
+export const backOutVolunteering = async (req, res) => {
+    try {
+        const { volunteering } = req.body;
         const uid = req.user._id;
 
         const volunter = await Volunteering.findById(volunteering);
@@ -151,12 +151,12 @@ export const backOutVolunteering = async(req, res) => {
         }
 
         await Volunteering.findByIdAndUpdate(volunteering, { $pull: { volunteers: uid } });
-        return res.send({message: 'Se ha retirado del voluntariado con exito'})
+        return res.send({ message: 'Se ha retirado del voluntariado con exito' })
 
-    }catch (error) {
+    } catch (error) {
         console.error('Error asignando voluntariado:', error);
         return res.status(500).send({ message: 'Error al retirarse del voluntariado', error });
-    }    
+    }
 }
 
 
@@ -259,7 +259,7 @@ export const UpdateV = async (req, res) => {
             { new: true }
         )
 
-        if(data.date){
+        if (data.date) {
             let cleanVolunters = await Volunteering.findById(id)
             cleanVolunters.volunteers = []
             await cleanVolunters.save();
@@ -344,10 +344,10 @@ export const updateStatus = async (req, res) => {
                         console.log('ola')
                     }
 
-                    
+
 
                     if (participeUser.volusTerminados.includes(actividadCompleta._id)) {
-                        
+
                     } else {
                         participeUser.volusTerminados.push(actividadCompleta._id)
                         await participeUser.save()
@@ -420,7 +420,7 @@ export const updateStatus = async (req, res) => {
                             }
 
                             if (participeUser.volusTerminados.includes(actividadCompleta._id)) {
-                                
+
                             } else {
                                 participeUser.volusTerminados.push(actividadCompleta._id)
                                 await participeUser.save()
@@ -488,12 +488,29 @@ export const listarVolunteeringDisponiblesEnCurso = async (req, res) => {
     try {
         const orgId = new mongoose.Types.ObjectId(organizationId);
 
-        let data = await Volunteering.find({ 
+        let data = await Volunteering.find({
             organization: orgId,
             estado: { $in: ['Disponible', 'En Curso'] }
-        }).select('-__v').select('-_id'); 
+        }).select('-__v').select('-_id');
 
         return res.status(200).send({ data });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({ message: 'No se pudo obtener la información.' });
+    }
+}
+
+export const getVolunteeringsforOrg = async (req, res) => {
+
+    try {
+        const { organizationId } = req.body;
+
+        if (!organizationId) {
+            return res.status(400).json({ message: 'organizationId is required' });
+        }
+
+        let data = await Volunteering.find({organization: organizationId})
+        return res.send({message: `los voluntariados de esta organizacion son: ${data}`})
     } catch (error) {
         console.error(error);
         return res.status(500).send({ message: 'No se pudo obtener la información.' });
@@ -503,7 +520,7 @@ export const listarVolunteeringDisponiblesEnCurso = async (req, res) => {
 export const getParticipatingVolunteers = async (req, res) => {
     try {
         const userId = req.user._id;
-        const volunteers = await Volunteering.find({volunteers: userId}).select('title')
+        const volunteers = await Volunteering.find({ volunteers: userId }).select('title')
         console.log(volunteers)
         res.status(200).json({ message: 'El usuario esta participando actualmente en los actuales y futuros voluntariados: ', volunteers });
     } catch (error) {

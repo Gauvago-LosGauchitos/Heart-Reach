@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UpdateV, addType, deleteV, listarVolunteering, registerV, test, messages, getVolunteeringTypes, updateStatus, assignVolunteering, findVolunteer, listarVolunteeringDisponiblesEnCurso, getParticipatingVolunteers, backOutVolunteering } from './volunteering.controller.js'
+import { UpdateV, addType, deleteV, listarVolunteering, registerV, test, messages, getVolunteeringTypes, updateStatus, assignVolunteering, findVolunteer, listarVolunteeringDisponiblesEnCurso, getParticipatingVolunteers, backOutVolunteering, getVolunteeringsforOrg } from './volunteering.controller.js'
 import { validateJwt } from "../middlewares/validate-jwt.js";
 import { upload } from '../utils/multerConfig.js';
 
@@ -19,6 +19,7 @@ api.put('/backOut', [validateJwt], backOutVolunteering)
 api.get('/volunteering/disponible', listarVolunteeringDisponiblesEnCurso)
 api.get('/getVolunteering/:id', findVolunteer)
 api.get('/get/volunterings/participating', [validateJwt], getParticipatingVolunteers)
+api.get('/get/volunterings/orgs', getVolunteeringsforOrg)
 
 
 export default api
