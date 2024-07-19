@@ -155,7 +155,27 @@ export const backOutVolunteering = async (req, res) => {
 
     } catch (error) {
         console.error('Error asignando voluntariado:', error);
-        return res.status(500).send({ message: 'Error al retirarse del voluntariado', error });
+        return res.status(500).send({ message: 'Error al retirarse al voluntariado', error });
+    }
+}
+
+export const verifyIfIsOn = async (req, res)=>{
+    try {
+        const { volunteering } = req.body;
+        const uid = req.user._id;
+        const volunter = await Volunteering.findById(volunteering);
+        if (!volunter) {
+            console.log('No volunteering found for:', volunteering);
+            return res.status(400).send({ message: 'No se ha encontrado ningún voluntariado'})
+            }
+            if (!volunter.volunteers.includes(uid)) {
+                return res.send(false)
+                }
+                return res.send(true)
+
+    } catch (error) {
+        console.error('Error obteniendo la asignacion al voluntariado:', error);
+        return res.status(500).send({ message: 'Error obteniendo la asignacion al voluntariado', error });
     }
 }
 
