@@ -1,5 +1,6 @@
 'use strict'
 import User from './user.model.js';
+import Volunteers from '../volunteering/volunteering.model.js';
 import { checkEncrypt, checkUpdate, encrypt } from '../utils/validator.js';
 import { generateJwt } from '../utils/jwt.js';
 import fs from 'fs';
@@ -391,3 +392,13 @@ export const getUserContacts = async (req, res) => {
     }
 };
 
+export const getParticipatingVolunteers = async (req, res) =>{
+    try {
+        const userId = req.user._id;
+        const volunteers = await Volunteers.find({volunteers: userId}).select('title')
+        console.log(volunteers)
+    }catch (error) {
+        console.error('Error al obtener voluntariados:', error);
+        res.status(500).json({ message: 'Error al obtener voluntariados', error });
+    }
+}
