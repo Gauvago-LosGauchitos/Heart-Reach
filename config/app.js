@@ -14,6 +14,7 @@ import volunteeringRoutes from '../src/volunteering/volunteering.routes.js'
 import orgRoutes from '../src/organization/organization.routes.js'
 import userRoutes from '../src/User/user.routes.js'
 import messageRoutes from '../src/chat/message.routes.js' 
+import revewRoutes from '../src/revews/revew.routes.js'
 
 // Inicialización
 const __filename = fileURLToPath(import.meta.url)
@@ -41,6 +42,7 @@ app.use('/volu', volunteeringRoutes)
 app.use('/org', orgRoutes)
 app.use('/user', userRoutes)
 app.use('/messages', messageRoutes) 
+app.use('/revew', revewRoutes)
 
 // Crear servidor HTTP
 const server = http.createServer(app)
