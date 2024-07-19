@@ -455,14 +455,23 @@ export const findVolunteer = async (req, res) => {
     }
 }
 
-
 // Listar voluntariados disponibles y en curso
 export const listarVolunteeringDisponiblesEnCurso = async (req, res) => {
+    const { organizationId } = req.body;
+    if (!organizationId) {
+        return res.status(400).json({ message: 'organizationId is required' });
+    }
     try {
-        let data = await Volunteering.find({ estado: { $in: ['Disponible', 'En Curso'] } }).select('-__v').select('-_id');
-        return res.send({ data });
+        const orgId = new mongoose.Types.ObjectId(organizationId);
+
+        let data = await Volunteering.find({ 
+            organization: orgId,
+            estado: { $in: ['Disponible', 'En Curso'] }
+        }).select('-__v').select('-_id'); 
+
+        return res.status(200).send({ data });
     } catch (error) {
         console.error(error);
-        return res.status(500).send({ message: 'The information cannot be obtained.' });
+        return res.status(500).send({ message: 'No se pudo obtener la información.' });
     }
-}
+};
