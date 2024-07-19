@@ -183,6 +183,26 @@ export const get = async (req, res) => {
     }
 }
 
+export const getAdmins = async (req, res) => {
+    try {
+        let users = await User.find({ role: 'ADMIN' });
+        return res.send({ users })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send({ message: `Error to get user`, err })
+    }
+}
+
+export const getAdminAsociation = async (req, res) => {
+    try {
+        let users = await User.find({ role: 'ADMIN-ASOCIATION' });
+        return res.send({ users })
+    } catch (err) {
+        console.error(err)
+        return res.status(500).send({ message: `Error to get user`, err })
+    }
+}
+
 // Obtener mensajes privados antiguos entre usuario y organización
 export const getPrivateMessages = async (req, res) => {
     try {

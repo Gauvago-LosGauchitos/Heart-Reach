@@ -2,7 +2,7 @@ import { Router } from "express"
 import multer from 'multer'
 import { isAdmin } from '../utils/validator.js'
 import { validateJwt } from '../middlewares/validate-jwt.js'
-import { test, register, registerForAdmin, login, updateProfile, getUser, get, getPrivateMessages, getUserMessages, searchUsers, sendPrivateMessage, sendUserMessage, getUserContacts, getParticipatedVolunteers  } from './user.controller.js'
+import { test, register, registerForAdmin, login, updateProfile, getUser, get,getAdminAsociation, getPrivateMessages, getUserMessages, searchUsers, sendPrivateMessage, sendUserMessage, getUserContacts, getParticipatedVolunteers, getAdmins  } from './user.controller.js'
 
 const api = Router();
 
@@ -23,7 +23,9 @@ api.post('/registerForAdmin',[validateJwt,isAdmin], upload.array('images', 10), 
 api.post('/login', login); // Ruta de inicio de sesión
 api.put('/updateProfile', upload.array('images', 1),[validateJwt], updateProfile); // Ruta para actualizar perfil con subida de imagen
 api.get('/getUser', [validateJwt], getUser);
-api.get('/get', [validateJwt, isAdmin], get);
+api.get('/get', get);
+api.get('/getAdmins', getAdmins)
+api.get('/getAdminsAsociation', getAdminAsociation)
 api.post('/privateMessages', getPrivateMessages)  
 api.post('/userMessages', getUserMessages) 
 api.post('/privateMessages/send', sendPrivateMessage);
