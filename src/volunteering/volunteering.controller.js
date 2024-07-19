@@ -470,7 +470,6 @@ export const listarVolunteeringDisponiblesEnCurso = async (req, res) => {
 export const getParticipatingVolunteers = async (req, res) => {
     try {
         const userId = req.user._id;
-        const history = await User.findById(userId).select()
         const volunteers = await Volunteering.find({volunteers: userId}).select('title')
         console.log(volunteers)
         res.status(200).json({ message: 'El usuario esta participando actualmente en los actuales y futuros voluntariados: ', volunteers });

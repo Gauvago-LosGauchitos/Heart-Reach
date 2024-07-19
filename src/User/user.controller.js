@@ -395,7 +395,8 @@ export const getUserContacts = async (req, res) => {
 export const getParticipatedVolunteers = async (req, res) =>{
     try {
         const userId = req.user._id;
-        const history = await User.findById(userId).select(volusTerminados)
+        const history = await User.findById(userId).select('volusTerminados')
+        console.log(history)
         res.status(200).json({ message: 'El usuario esta participando actualmente en los actuales y futuros voluntariados: ', history });
     }catch (error) {
         console.error('Error al obtener voluntariados:', error);
