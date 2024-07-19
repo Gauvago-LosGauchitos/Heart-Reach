@@ -35,7 +35,6 @@ const volunteeringSchema = new mongoose.Schema({
     },
     date: {
         type: String,
-        default: Date.now,
         required: true
     },
     timeStart: {

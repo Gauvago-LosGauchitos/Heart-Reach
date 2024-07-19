@@ -235,6 +235,12 @@ export const UpdateV = async (req, res) => {
             data,
             { new: true }
         )
+
+        if(data.date){
+            let cleanVolunters = await Volunteering.findById(id)
+            cleanVolunters.volunteers = []
+            await cleanVolunters.save();
+        }
         if (!updateVolunteering) return res.status(404).send({ message: `Volunteering c no encontrado` })
         return res.send({ message: `Volunteering actualizado exitoso` })
     } catch (error) {
@@ -262,17 +268,15 @@ export const updateStatus = async (req, res) => {
         const actividades = await Volunteering.find().select('date timeStart timeEnd estado title');
 
         // Obtener la fecha y hora actual en la zona horaria de Guatemala
-        const fechaActual = new Date(moment().tz('America/Guatemala').format('MM-DD-YYYY'))
+        const fechaActual = new Date(moment().tz('America/Guatemala').format('YYYY/MM/DD'))
+        console.log(`La fecha actual es `, fechaActual)
         const horaActual = moment().tz('America/Guatemala').format('HH:mm');
-        console.log('Fecha y hora actual en Guatemala:', fechaActual, horaActual);
-
         // Almacenar los resultados de las actualizaciones
         const resultadosActualizacion = [];
 
         // Recorrer todas las actividades y comparar las fechas
         for (const actividad of actividades) {
             const fechaActividad = new Date(actividad.date);
-            console.log('La fecha es:', fechaActividad);
 
             if (fechaActividad > fechaActual) {
                 // Obtener los datos completos de la actividad
@@ -285,7 +289,7 @@ export const updateStatus = async (req, res) => {
                         { estado: 'Disponible' },
                         { new: true }
                     );
-                    resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+                    resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title} a el estado ${actividadActualizada.estado}`);
 
                 }
                 console.log(`La actividad con fecha ${fechaActividad} y hora inicio ${actividad.timeStart} aun no ha comenzado.`);
@@ -304,33 +308,29 @@ export const updateStatus = async (req, res) => {
 
                     );
 
-
-                    resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+                    resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title} a el estado ${actividadActualizada.estado}`);
                 }
 
                 // Guardar la informacion que hicieron el voluntariado a los usuarios en la base de datos
                 for (const participant of actividadCompleta.volunteers) {
                     const participeUser = await User.findById(participant)
-                    console.log(participeUser.volusTerminados)
+
                     if (!Array.isArray(participeUser.volusTerminados)) {
                         participeUser.volusTerminados = [];
                         await participeUser.save()
                         console.log('ola')
                     }
 
-                    console.log(`Voluntario ${participeUser.name}: ${participant}`);
+                    
 
                     if (participeUser.volusTerminados.includes(actividadCompleta._id)) {
-                        console.log('El voluntario ya está en el array');
-                    }else{
+                        
+                    } else {
                         participeUser.volusTerminados.push(actividadCompleta._id)
                         await participeUser.save()
                         console.log(`se guardo el voluntariado terminado al usuario ${participeUser.name}`)
                     }
 
-
-                    
-                    
 
                 };
 
@@ -341,7 +341,7 @@ export const updateStatus = async (req, res) => {
                 const actividadCompleta = await Volunteering.findById(actividad._id);
 
                 const fechaActividad = new Date(actividad.date);
-                console.log('La fecha es:', actividad.date);
+                console.log('La fecha de la actividad es:', fechaActividad);
                 // Comparar la hora de inicio
                 const horaInicio = actividadCompleta.timeStart;
                 const horaFin = actividadCompleta.timeEnd;
@@ -369,7 +369,7 @@ export const updateStatus = async (req, res) => {
                             { estado: 'Disponible' },
                             { new: true }
                         );
-                        resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+                        resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title} a el estado ${actividadActualizada.estado}`);
                     }
                     console.log(`La actividad con fecha ${fechaActividad} y hora inicio ${actividad.timeStart} aun no ha comenzado.`);
                 }
@@ -384,8 +384,27 @@ export const updateStatus = async (req, res) => {
                             { estado: 'Terminado' },
                             { new: true }
                         );
-                        resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+                        resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title} a el estado ${actividadActualizada.estado}`);
 
+                        // Guardar la informacion que hicieron el voluntariado a los usuarios en la base de datos
+                        for (const participant of actividadCompleta.volunteers) {
+                            const participeUser = await User.findById(participant)
+
+                            if (!Array.isArray(participeUser.volusTerminados)) {
+                                participeUser.volusTerminados = [];
+                                await participeUser.save()
+                                console.log('ola')
+                            }
+
+                            if (participeUser.volusTerminados.includes(actividadCompleta._id)) {
+                                
+                            } else {
+                                participeUser.volusTerminados.push(actividadCompleta._id)
+                                await participeUser.save()
+                            }
+
+
+                        };
 
                     }
 
@@ -404,7 +423,7 @@ export const updateStatus = async (req, res) => {
                             { new: true }
 
                         );
-                        resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title}`);
+                        resultadosActualizacion.push(`Se ha actualizado ${actividadActualizada.title} a el estado ${actividadActualizada.estado}`);
                     }
 
                     console.log(`La actividad con fecha ${fechaActividad} esta en curso.`);
@@ -423,4 +442,4 @@ export const updateStatus = async (req, res) => {
         console.error(err);
         console.log({ message: 'Error al obtener los mensajes' });
     }
-};
+}
