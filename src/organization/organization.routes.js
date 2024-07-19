@@ -13,7 +13,7 @@ api.put('/remove', orgRemove)
 api.put('/update/:id', orgUpdate)
 api.post('/search', searchOrg)
 api.get('/get', allOrg)
-api.get('/get/pending', allPendingOr)
+api.get('/get/pending', allPendingOrg)
 api.get('/search/organizations', searchOrganizations);
 
 
