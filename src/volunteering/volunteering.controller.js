@@ -424,3 +424,15 @@ export const updateStatus = async (req, res) => {
         console.log({ message: 'Error al obtener los mensajes' });
     }
 };
+
+
+// Listar voluntariados disponibles y en curso
+export const listarVolunteeringDisponiblesEnCurso = async (req, res) => {
+    try {
+        let data = await Volunteering.find({ estado: { $in: ['Disponible', 'En Curso'] } }).select('-__v').select('-_id');
+        return res.send({ data });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({ message: 'The information cannot be obtained.' });
+    }
+}
