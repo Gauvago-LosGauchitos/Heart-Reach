@@ -206,7 +206,7 @@ export const searchOrg = async (req, res) => {
 
 export const allOrg = async (req, res) => {
     try {
-        let organizations = await Organization.find();
+        let organizations = await Organization.find({role: 'ACEPTADO'});
 
         return res.send({ organizations });
     } catch (err) {

@@ -30,6 +30,7 @@ api.post('/privateMessages/send', sendPrivateMessage);
 api.post('/userMessages/send', sendUserMessage);
 api.post('/contacts', [validateJwt], getUserContacts);
 api.get('/search/users', searchUsers);
+
 api.get('/get/volunterings/participating', [validateJwt], getParticipatingVolunteers)
 
 export default api
