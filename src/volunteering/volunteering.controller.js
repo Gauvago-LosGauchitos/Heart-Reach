@@ -214,7 +214,7 @@ export const deleteV = async (req, res) => {
 //Listar
 export const listarVolunteering = async (req, res) => {
     try {
-        let data = await Volunteering.find().select('-__v').select('-_id');
+        let data = await Volunteering.find().select('-__v')
         return res.send({ data });
     } catch (error) {
         console.error(error);
@@ -223,7 +223,6 @@ export const listarVolunteering = async (req, res) => {
 }
 
 //Update
-
 export const UpdateV = async (req, res) => {
     try {
         let { id } = req.params
@@ -443,6 +442,18 @@ export const updateStatus = async (req, res) => {
         console.log({ message: 'Error al obtener los mensajes' });
     }
 };
+
+export const findVolunteer = async (req, res) => {
+    try {
+        let { id } = req.params;
+        console.log(id);
+        let volunteer = await Volunteering.findById(id);
+        return res.send({ volunteer });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({ message: 'Error al obtener los datos del voluntariado' });
+    }
+}
 
 
 // Listar voluntariados disponibles y en curso
