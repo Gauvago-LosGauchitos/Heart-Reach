@@ -95,8 +95,8 @@ export const registerV = async (req, res) => {
 // Asignarse a un voluntariado
 export const assignVolunteering = async (req, res) => {
     try {
-        const { volunteering: volunteeringId } = req.body; // Obtener el ID del voluntariado desde el cuerpo de la solicitud
-        const uid = req.user._id; // Obtener el ID del usuario desde el objeto de usuario autenticado
+        const { volunteering: volunteeringId } = req.body; 
+        const uid = req.user._id; 
 
         // Buscar el voluntariado por su ID
         const volunteering = await Volunteering.findById(volunteeringId);
@@ -112,7 +112,7 @@ export const assignVolunteering = async (req, res) => {
         const userAlreadyAssigned = volunteering.volunteers.includes(uid);
         if (userAlreadyAssigned) {
             console.log('User already assigned to volunteering:', uid, volunteering._id);
-            return res.status(400).send({ message: 'Este usuario ya está asignado a este voluntariado' });
+            return res.status(400).send({ message: 'Ya estas asignado a este voluntariado' });
         }
 
         // Verificar si se ha alcanzado la cuota máxima de voluntarios
@@ -479,15 +479,24 @@ export const findVolunteer = async (req, res) => {
     }
 }
 
-
 // Listar voluntariados disponibles y en curso
 export const listarVolunteeringDisponiblesEnCurso = async (req, res) => {
+    const { organizationId } = req.body;
+    if (!organizationId) {
+        return res.status(400).json({ message: 'organizationId is required' });
+    }
     try {
-        let data = await Volunteering.find({ estado: { $in: ['Disponible', 'En Curso'] } }).select('-__v').select('-_id');
-        return res.send({ data });
+        const orgId = new mongoose.Types.ObjectId(organizationId);
+
+        let data = await Volunteering.find({ 
+            organization: orgId,
+            estado: { $in: ['Disponible', 'En Curso'] }
+        }).select('-__v').select('-_id'); 
+
+        return res.status(200).send({ data });
     } catch (error) {
         console.error(error);
-        return res.status(500).send({ message: 'The information cannot be obtained.' });
+        return res.status(500).send({ message: 'No se pudo obtener la información.' });
     }
 }
 
