@@ -95,8 +95,8 @@ export const registerV = async (req, res) => {
 // Asignarse a un voluntariado
 export const assignVolunteering = async (req, res) => {
     try {
-        const { volunteering: volunteeringId } = req.body; // Obtener el ID del voluntariado desde el cuerpo de la solicitud
-        const uid = req.user._id; // Obtener el ID del usuario desde el objeto de usuario autenticado
+        const { volunteering: volunteeringId } = req.body; 
+        const uid = req.user._id; 
 
         // Buscar el voluntariado por su ID
         const volunteering = await Volunteering.findById(volunteeringId);
@@ -105,14 +105,13 @@ export const assignVolunteering = async (req, res) => {
             return res.status(400).send({ message: 'No se ha encontrado ningún voluntariado' });
         }
 
-        // Log del voluntariado encontrado para verificar los datos
         console.log('Volunteering found:', volunteering);
 
         // Verificar si el usuario ya está asignado a ese voluntariado específico
         const userAlreadyAssigned = volunteering.volunteers.includes(uid);
         if (userAlreadyAssigned) {
             console.log('User already assigned to volunteering:', uid, volunteering._id);
-            return res.status(400).send({ message: 'Este usuario ya está asignado a este voluntariado' });
+            return res.status(400).send({ message: 'Ya estas asignado a este voluntariado' });
         }
 
         // Verificar si se ha alcanzado la cuota máxima de voluntarios
