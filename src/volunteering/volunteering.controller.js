@@ -106,7 +106,7 @@ export const assignVolunteering = async (req, res) => {
         }
 
         // Log del voluntariado encontrado para verificar los datos
-        console.log('Volunteering found:', volunteering);
+        //console.log('Volunteering found:', volunteering);
 
         // Verificar si el usuario ya está asignado a ese voluntariado específico
         const userAlreadyAssigned = volunteering.volunteers.includes(uid);
@@ -134,6 +134,30 @@ export const assignVolunteering = async (req, res) => {
     }
 }
 
+export const backOutVolunteering = async(req, res) => {
+    try{
+        const {volunteering} = req.body;
+        const uid = req.user._id;
+
+        const volunter = await Volunteering.findById(volunteering);
+        if (!volunter) {
+            console.log('No volunteering found for:', volunteering);
+            return res.status(400).send({ message: 'No se ha encontrado ningún voluntariado' });
+        }
+
+        if (!volunter.volunteers.includes(uid)) {
+            console.log('User not assigned to volunteering:', uid, volunteering._id);
+            return res.status(400).send({ message: 'Este usuario no esta asignado a este voluntariado' });
+        }
+
+        await Volunteering.findByIdAndUpdate(volunteering, { $pull: { volunteers: uid } });
+        return res.send({message: 'Se ha retirado del voluntariado con exito'})
+
+    }catch (error) {
+        console.error('Error asignando voluntariado:', error);
+        return res.status(500).send({ message: 'Error al retirarse del voluntariado', error });
+    }    
+}
 
 
 //Crear tipos de voluntariados por defecto
